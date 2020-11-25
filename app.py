@@ -7,22 +7,69 @@ class Grid:
         self.cols = cols
         self.rows = rows
         self.lst = []
-        self.playerPositionY = random.randrange(0, self.rows)
-        self.playerPositionX = random.randrange(0, self.cols)
+        self.randomPositionY = random.randrange(0, self.rows)
+        self.randomPositionX = random.randrange(0, self.cols)
+        self.takenCoords = []
 
-    def printGrid(self):
+    def mineLevelGen(self):
+        for row in range(self.rows):
+            self.lst.append([])
+        for row in self.lst:
+            for _ in range(self.cols):
+                if self.lst.index(row) == 0:
+                    row.append(self.char2)
+                else:
+                    row.append(self.char1)
+
+    def createGrid(self):
         for row in range(self.rows):
             self.lst.append([])
         for row in self.lst:
             for _ in range(self.cols):
                 row.append(self.char1)
-
-    def spawnPlayer(self):
-        self.lst[self.playerPositionY][self.playerPositionX] = self.char2
-
+    
+    def printGrid(self):
         # Print grid
         for row in self.lst:
             print(row)
+
+    def spawnPlayer(self):
+        self.lst[self.randomPositionY][self.randomPositionX] = self.char2
+
+        # Print grid
+        self.printGrid()
+
+    def placeOre(self, symbol, items):
+        # Do for number of items to spawn
+        for _ in range(items):
+            # Get a random spawn position
+            spawnPosition = (random.randrange(0, self.cols), random.randrange(0, self.rows))
+
+            # Prevent spawning on top row
+            if spawnPosition[0] == 0:
+                # Add coords to do not spawn list
+                self.takenCoords.append(spawnPosition)
+
+            # Check that coords are not in the do not spawn list
+            if spawnPosition not in self.takenCoords:
+                # Spawn character in grid
+                self.lst[spawnPosition[0]][spawnPosition[1]] = symbol
+                # Add coords to do not spawn list
+                self.takenCoords.append(spawnPosition)
+
+            # Check if coords are in the do not spawn list
+            else:
+
+                # Keep spawning new coords until they meet the requirements
+                while spawnPosition in self.takenCoords or spawnPosition[0] == 0:
+                    # Get random coords
+                    spawnPosition = (random.randrange(0, self.cols), random.randrange(0, self.rows))
+
+                # Spawn character in grid
+                self.lst[spawnPosition[0]][spawnPosition[1]] = symbol
+                # Add coords to do not spawn list
+                self.takenCoords.append(spawnPosition)
+        
 
 def gameLoop(grid):
     # Get direction from user
@@ -31,15 +78,15 @@ def gameLoop(grid):
     if direction == 'u':
 
         # Check if player can move up
-        if grid.playerPositionY <= 0:
+        if grid.randomPositionY <= 0:
             print("Can't move up, try another direction..")
         else:
             # Overwrite old position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char1
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char1
             # Move player position up by 1
-            grid.playerPositionY -= 1
+            grid.randomPositionY -= 1
             # update player position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
         # Print grid
         for row in grid.lst:
@@ -48,15 +95,15 @@ def gameLoop(grid):
     elif direction == 'd':
 
          # Check if player can move down
-        if grid.playerPositionY >= grid.rows-1:
+        if grid.randomPositionY >= grid.rows-1:
             print("Can't move down, try another direction..")
         else:
             # Overwrite old position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char1
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char1
             # Move player position up by 1
-            grid.playerPositionY += 1
+            grid.randomPositionY += 1
             # update player position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
         # Print grid
         for row in grid.lst:
@@ -65,15 +112,15 @@ def gameLoop(grid):
     elif direction == 'l':
 
         # Check if player can move left
-        if grid.playerPositionX <= 0:
+        if grid.randomPositionX <= 0:
             print("Can't move left, try another direction..")
         else:
             # Overwrite old position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char1
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char1
             # Move player position up by 1
-            grid.playerPositionX -= 1
+            grid.randomPositionX -= 1
             # update player position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
         # Print grid
         for row in grid.lst:
@@ -82,15 +129,15 @@ def gameLoop(grid):
     elif direction == 'r':
 
         # Check if player can move right
-        if grid.playerPositionX >= grid.cols-1:
+        if grid.randomPositionX >= grid.cols-1:
             print("Can't move right, try another direction..")
         else:
             # Overwrite old position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char1
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char1
             # Move player position up by 1
-            grid.playerPositionX += 1
+            grid.randomPositionX += 1
             # update player position
-            grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+            grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
         # Print grid
         for row in grid.lst:
@@ -115,7 +162,7 @@ def dungeonCreator(grid):
         lineLen = random.randrange(0, maxLen)
         if direction == 'u':
             # Check if player can move up
-            if grid.playerPositionY <= 0 or line >= lineLen:
+            if grid.randomPositionY <= 0 or line >= lineLen:
                 # Reset current line length
                 line = 0
                 # Change direction
@@ -125,9 +172,9 @@ def dungeonCreator(grid):
                 # Increase current line length
                 line += 1
                 # Move player position up by 1
-                grid.playerPositionY -= 1
+                grid.randomPositionY -= 1
                 # update player position
-                grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+                grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
             # Print grid
             print('\n')
@@ -136,7 +183,7 @@ def dungeonCreator(grid):
 
         elif direction == 'd':
             # Check if player can move down
-            if grid.playerPositionY >= grid.rows-1 or line >= lineLen:
+            if grid.randomPositionY >= grid.rows-1 or line >= lineLen:
                 # Reset current line length
                 line = 0
                 # Change direction
@@ -146,9 +193,9 @@ def dungeonCreator(grid):
                 # Increase current line length
                 line += 1
                 # Move player position up by 1
-                grid.playerPositionY += 1
+                grid.randomPositionY += 1
                 # update player position
-                grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+                grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
             # Print grid
             print('\n')
@@ -157,7 +204,7 @@ def dungeonCreator(grid):
 
         elif direction == 'l':
             # Check if player can move left
-            if grid.playerPositionX <= 0 or line >= lineLen:
+            if grid.randomPositionX <= 0 or line >= lineLen:
                 # Reset current line length
                 line = 0
                 # Change direction
@@ -167,9 +214,9 @@ def dungeonCreator(grid):
                 # Increase current line length
                 line += 1
                 # Move player position up by 1
-                grid.playerPositionX -= 1
+                grid.randomPositionX -= 1
                 # update player position
-                grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+                grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
             # Print grid
             print('\n')
@@ -178,7 +225,7 @@ def dungeonCreator(grid):
 
         else:
             # Check if player can move right
-            if grid.playerPositionX >= grid.cols-1 or line >= lineLen:
+            if grid.randomPositionX >= grid.cols-1 or line >= lineLen:
                 # Reset current line length
                 line = 0
                 # Change direction
@@ -188,9 +235,9 @@ def dungeonCreator(grid):
                 # Increase current line length
                 line += 1
                 # Move player position up by 1
-                grid.playerPositionX += 1
+                grid.randomPositionX += 1
                 # update player position
-                grid.lst[grid.playerPositionY][grid.playerPositionX] = grid.char2
+                grid.lst[grid.randomPositionY][grid.randomPositionX] = grid.char2
 
             # Print grid
             print('\n')
@@ -199,11 +246,16 @@ def dungeonCreator(grid):
 
 
 grid = Grid(32, 32, '█', '░')
+grid.mineLevelGen()
+grid.placeOre('#', 22)
+# grid.placeOre('*', 12)
+# grid.placeOre('^', 12)
+# grid.placeOre('$', 12)
 grid.printGrid()
-grid.spawnPlayer()
+# grid.spawnPlayer()
+print(grid.takenCoords)
+# dungeonCreator(grid)
 
-dungeonCreator(grid)
-
-while True:
-    pass
+# while True:
+#     pass
     # gameLoop(grid)
